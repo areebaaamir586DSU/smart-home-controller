@@ -1,0 +1,13 @@
+{
+  "files": {
+    "main.css": "/smart-home-controller/static/css/main.9ba3e0ad.css",
+    "main.js": "/smart-home-controller/static/js/main.361207c4.js",
+    "index.html": "/smart-home-controller/index.html",
+    "main.9ba3e0ad.css.map": "/smart-home-controller/static/css/main.9ba3e0ad.css.map",
+    "main.361207c4.js.map": "/smart-home-controller/static/js/main.361207c4.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.9ba3e0ad.css",
+    "static/js/main.361207c4.js"
+  ]
+}
