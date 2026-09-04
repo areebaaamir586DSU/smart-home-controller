@@ -21,6 +21,7 @@ function Navbar() {
       <div className="navbar-links">
         <Link to="/" className={isActive('/') ? 'active' : ''}>Dashboard</Link>
         <Link to="/devices" className={isActive('/devices') ? 'active' : ''}>Devices</Link>
+        <Link to="/favorites" className={isActive('/favorites') ? 'active' : ''}>Favorites ⭐</Link>
         <Link to="/rooms" className={isActive('/rooms') ? 'active' : ''}>Rooms</Link>
         <Link to="/scenes" className={isActive('/scenes') ? 'active' : ''}>Scenes</Link>
         <Link to="/automations" className={isActive('/automations') ? 'active' : ''}>Automations</Link>

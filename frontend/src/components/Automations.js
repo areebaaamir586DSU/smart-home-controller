@@ -11,6 +11,7 @@ for (let h = 0; h < 24; h++) {
 function Automations() {
   const { automations, devices, addAutomation, updateAutomation, deleteAutomation, loading } = useDevices();
   const [showForm, setShowForm] = useState(false);
+  const [editingId, setEditingId] = useState(null);
   const [form, setForm] = useState({
     name: '',
     time: '07:00',
@@ -39,13 +40,39 @@ function Automations() {
     e.preventDefault();
     setMessage(null);
     try {
-      await addAutomation(form);
+      if (editingId) {
+        await updateAutomation(editingId, form);
+        setMessage({ type: 'success', text: 'Automation updated!' });
+      } else {
+        await addAutomation(form);
+        setMessage({ type: 'success', text: 'Automation added!' });
+      }
       setShowForm(false);
+      setEditingId(null);
       setForm({ name: '', time: '07:00', device_id: 'light_1', action: 'on', brightness: 80, temperature: 72 });
-      setMessage({ type: 'success', text: 'Automation added!' });
     } catch (error) {
-      setMessage({ type: 'error', text: 'Failed to add automation' });
+      setMessage({ type: 'error', text: 'Failed to save automation' });
     }
+  };
+
+  const startEdit = (auto) => {
+    setEditingId(auto.id);
+    setForm({
+      name: auto.name || '',
+      time: auto.time || '07:00',
+      device_id: auto.device_id || 'light_1',
+      action: auto.action || 'on',
+      brightness: auto.brightness || 80,
+      temperature: auto.temperature || 72
+    });
+    setShowForm(true);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const cancelForm = () => {
+    setShowForm(false);
+    setEditingId(null);
+    setForm({ name: '', time: '07:00', device_id: 'light_1', action: 'on', brightness: 80, temperature: 72 });
   };
 
   const actionLabel = (a) => {
@@ -69,13 +96,14 @@ function Automations() {
       )}
 
       <div className="page-actions">
-        <button className="btn btn-primary" onClick={() => setShowForm(!showForm)}>
+        <button className="btn btn-primary" onClick={() => showForm && editingId ? cancelForm() : setShowForm(!showForm)}>
           {showForm ? 'Cancel' : '+ New Automation'}
         </button>
       </div>
 
       {showForm && (
         <form className="automation-form" onSubmit={handleSubmit}>
+          <h3 style={{ marginTop: 0 }}>{editingId ? `Edit: ${form.name}` : 'New Automation'}</h3>
           <div className="form-group">
             <label>Name</label>
             <input
@@ -153,7 +181,7 @@ function Automations() {
             </div>
           )}
 
-          <button type="submit" className="btn btn-primary">Save Automation</button>
+          <button type="submit" className="btn btn-primary">{editingId ? 'Save Changes' : 'Save Automation'}</button>
         </form>
       )}
 
@@ -186,8 +214,14 @@ function Automations() {
                 <span className="slider round"></span>
               </label>
               <button
+                className="btn btn-secondary"
+                onClick={() => startEdit(auto)}
+              >
+                Edit
+              </button>
+              <button
                 className="btn btn-danger"
-                onClick={() => deleteAutomation(auto.id)}
+                onClick={() => { if (confirm(`Delete automation "${auto.name}"?`)) deleteAutomation(auto.id); }}
               >
                 Delete
               </button>

@@ -1,16 +1,20 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useDevices } from '../contexts/DeviceContext';
+import EditDeviceModal from './EditDeviceModal';
 
 const DEVICE_META = {
   light: { icon: '💡', color: '#ffd54f', accent: 'gold' },
   thermostat: { icon: '🌡️', color: '#4fc3f7', accent: 'cyan' },
   lock: { icon: '🔒', color: '#66bb6a', accent: 'green' },
   camera: { icon: '📹', color: '#ef5350', accent: 'red' },
-  sensor: { icon: '📡', color: '#ab47bc', accent: 'purple' }
+  sensor: { icon: '📡', color: '#ab47bc', accent: 'purple' },
+  speaker: { icon: '🔊', color: '#ff8a65', accent: 'orange' },
+  ac: { icon: '❄️', color: '#4dd0e1', accent: 'cyan' }
 };
 
 function DeviceCard({ device }) {
-  const { toggleDevice, updateDevice, deleteDevice } = useDevices();
+  const { toggleDevice, updateDevice, deleteDevice, toggleFavorite } = useDevices();
+  const [editing, setEditing] = useState(false);
   const meta = DEVICE_META[device.type] || { icon: '🏠', color: '#4fc3f7', accent: 'cyan' };
   const isActive = () => device.status !== 'off' && device.status !== 'inactive' && device.status !== 'idle';
   const active = isActive();
@@ -23,6 +27,10 @@ function DeviceCard({ device }) {
     if (confirm(`Delete "${device.name}"?`)) {
       try { await deleteDevice(device.id); } catch (e) { console.error(e); }
     }
+  };
+
+  const handleFavorite = async () => {
+    try { await toggleFavorite(device.id); } catch (e) { console.error(e); }
   };
 
   const handleBrightness = async (e) => {
@@ -55,6 +63,13 @@ function DeviceCard({ device }) {
           <div className="device-name">{device.name}</div>
           <div className="device-room">{device.room}</div>
         </div>
+        <button
+          className={`fav-btn ${device.favorite ? 'active' : ''}`}
+          onClick={handleFavorite}
+          title={device.favorite ? 'Remove from favorites' : 'Add to favorites'}
+        >
+          ★
+        </button>
         <div className="device-status-wrap">
           <div className={`device-status ${active ? 'on' : 'off'}`} style={active ? { color: meta.color } : {}}>
             {active && <span className="pulse-dot"></span>}
@@ -124,8 +139,11 @@ function DeviceCard({ device }) {
           <span className="slider round"></span>
         </label>
         <div className="control-label">{active ? 'TURN OFF' : 'TURN ON'}</div>
+        <button className="btn btn-secondary mini" onClick={() => setEditing(true)} title="Edit device">✏️</button>
         <button className="btn btn-danger mini" onClick={handleDelete} title="Delete device">🗑️</button>
       </div>
+
+      {editing && <EditDeviceModal device={device} onClose={() => setEditing(false)} />}
     </div>
   );
 }

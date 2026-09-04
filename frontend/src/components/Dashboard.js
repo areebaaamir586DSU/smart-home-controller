@@ -43,6 +43,18 @@ function Dashboard() {
         </div>
       )}
 
+      {stats && stats.monthly_cost && (
+        <div className="cost-panel">
+          <div className="cost-title">💡 Estimated Monthly Cost</div>
+          <div className="cost-value">${stats.monthly_cost.toFixed(2)} <small style={{fontSize:'0.5em'}}>/ month</small></div>
+          <div className="cost-top">
+            {Object.values(stats.perDeviceCost || {}).sort((a, b) => b.monthlyKwh - a.monthlyKwh).slice(0, 4).map(d => (
+              <div key={d.name} className="cost-chip">{d.name}: {d.monthlyKwh}kWh · ${d.monthlyCost}</div>
+            ))}
+          </div>
+        </div>
+      )}
+
       <div className="section-header">
         <h2>All Devices</h2>
       </div>

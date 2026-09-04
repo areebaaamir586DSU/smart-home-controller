@@ -11,6 +11,7 @@ import SceneManager from './components/SceneManager';
 import Analytics from './components/Analytics';
 import Automations from './components/Automations';
 import Notifications from './components/Notifications';
+import Favorites from './components/Favorites';
 import Navbar from './components/Navbar';
 import './App.css';
 
@@ -37,6 +38,11 @@ function AppContent() {
           <Route path="/devices" element={
             <PrivateRoute>
               <DeviceControl />
+            </PrivateRoute>
+          } />
+          <Route path="/favorites" element={
+            <PrivateRoute>
+              <Favorites />
             </PrivateRoute>
           } />
           <Route path="/rooms" element={

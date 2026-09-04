@@ -854,3 +854,77 @@ body::after {
 }
 select.form-input { cursor: pointer; appearance: auto; }
 select.form-input option { background: #10182d; color: #e0f7fa; }
+
+/* Favorite star button */
+.fav-btn {
+  background: none;
+  border: none;
+  font-size: 1.4rem;
+  color: rgba(255,255,255,0.2);
+  cursor: pointer;
+  transition: all 0.25s ease;
+  padding: 4px 8px;
+  line-height: 1;
+}
+.fav-btn:hover { color: rgba(255,213,79,0.6); transform: scale(1.1); }
+.fav-btn.active { color: #ffd54f; text-shadow: 0 0 12px rgba(255,213,79,0.6); }
+
+/* Energy cost panel */
+.cost-panel {
+  background: linear-gradient(135deg, rgba(76,175,80,0.10), rgba(79,195,247,0.08));
+  border: 1px solid rgba(76,175,80,0.25);
+  border-radius: 20px;
+  padding: 24px;
+  margin: 20px 0 28px;
+  box-shadow: 0 8px 30px rgba(0,0,0,0.25), 0 0 30px rgba(76,175,80,0.06);
+  animation: cardIn 0.5s ease backwards;
+}
+.cost-title {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #81c784;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  margin-bottom: 6px;
+}
+.cost-value {
+  font-size: 2.6rem;
+  font-weight: 800;
+  background: linear-gradient(135deg, #a5d6a7, #4fc3f7);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  margin-bottom: 14px;
+}
+.cost-top {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.cost-chip {
+  background: rgba(76,175,80,0.12);
+  border: 1px solid rgba(76,175,80,0.25);
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 0.78rem;
+  color: #a5d6a7;
+}
+
+.btn-secondary.mini {
+  padding: 6px 10px;
+  font-size: 1rem;
+  background: rgba(79,195,247,0.1);
+  border: 1px solid rgba(79,195,247,0.2);
+  color: #4fc3f7;
+  border-radius: 10px;
+  flex-shrink: 0;
+  min-width: auto;
+}
+.btn-secondary.mini:hover { background: rgba(79,195,247,0.22); transform: scale(1.05); }
+
+/* Automation controls layout */
+.automation-controls .btn {
+  white-space: nowrap;
+  font-size: 0.85rem;
+  padding: 8px 14px;
+}

@@ -7,8 +7,8 @@ const STORAGE_KEY = 'smart_home_state_v1';
 // ---- Default seed state ----
 const defaultState = () => ({
   devices: {
-    light_1: { id: "light_1", name: "Living Room Light", type: "light", room: "Living Room", status: "on", brightness: 80, color: "#FFFFFF" },
-    light_2: { id: "light_2", name: "Bedroom Light", type: "light", room: "Bedroom", status: "off", brightness: 50, color: "#FFD700" },
+    light_1: { id: "light_1", name: "Living Room Light", type: "light", room: "Living Room", status: "on", brightness: 80, color: "#FFFFFF", favorite: true },
+    light_2: { id: "light_2", name: "Bedroom Light", type: "light", room: "Bedroom", status: "off", brightness: 50, color: "#FFD700", favorite: true },
     light_3: { id: "light_3", name: "Kitchen Light", type: "light", room: "Kitchen", status: "off", brightness: 60, color: "#FFFFFF" },
     thermostat_1: { id: "thermostat_1", name: "Main Thermostat", type: "thermostat", room: "Living Room", status: "on", temperature: 72, mode: "auto", humidity: 45 },
     thermostat_2: { id: "thermostat_2", name: "Bedroom Thermostat", type: "thermostat", room: "Bedroom", status: "on", temperature: 68, mode: "auto", humidity: 40 },
@@ -156,6 +156,7 @@ export function mockAdapter(axiosInstance) {
           motion_detection: true,
           night_vision: false,
           sensitivity: 'medium',
+          favorite: false,
           ...(b.extra || {})
         };
         saveState(state);
@@ -198,6 +199,8 @@ export function mockAdapter(axiosInstance) {
           else if (dev.type === 'thermostat') dev.status = dev.status === 'on' ? 'off' : 'on';
           else if (dev.type === 'camera') dev.status = dev.status === 'recording' ? 'idle' : 'recording';
           else if (dev.type === 'sensor') dev.status = dev.status === 'active' ? 'inactive' : 'active';
+          else if (dev.type === 'speaker') dev.status = dev.status === 'on' ? 'off' : 'on';
+          else if (dev.type === 'ac') dev.status = dev.status === 'on' ? 'off' : 'on';
           if (dev.type === 'sensor' && dev.status === 'active') dev.last_triggered = new Date().toISOString();
           saveState(state);
           notif(`${dev.name} ${dev.status}`, `${dev.status === 'active' || dev.status === 'on' || dev.status === 'recording' ? 'success' : 'warning'}`);
@@ -312,6 +315,13 @@ export function mockAdapter(axiosInstance) {
           rooms: roomsMap,
           today_energy: todayEnergy,
           total_energy: state.energyHistory.reduce((s, d) => s + d.energy, 0),
+          monthly_cost: Math.round(todayEnergy * 30 * 0.14 * 100) / 100,
+          perDeviceCost: Object.values(state.devices).reduce((acc, d) => {
+            const watts = d.power_watts || (d.type === 'ac' ? 2500 : d.type === 'thermostat' ? 1500 : d.type === 'camera' ? 20 : d.type === 'lock' ? 30 : d.type === 'sensor' ? 5 : d.type === 'speaker' ? 50 : 10);
+            const kwh = watts * 4 * 30 / 1000;
+            acc[d.id] = { name: d.name, watts, monthlyKwh: Math.round(kwh * 10) / 10, monthlyCost: Math.round(kwh * 0.14 * 100) / 100 };
+            return acc;
+          }, {}),
           notifications: state.notifications.length
         });
       }

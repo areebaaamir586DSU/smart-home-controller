@@ -105,6 +105,19 @@ export function DeviceProvider({ children }) {
     }
   };
 
+  const toggleFavorite = async (deviceId) => {
+    try {
+      const device = devices.find(d => d.id === deviceId);
+      if (!device) return;
+      const response = await api.put(`/devices/${deviceId}`, { favorite: !device.favorite });
+      setDevices(prev => prev.map(d => d.id === deviceId ? response.data : d));
+      return response.data;
+    } catch (error) {
+      console.error('Failed to toggle favorite:', error);
+      throw error;
+    }
+  };
+
   const activateScene = async (sceneId) => {
     try {
       await api.post(`/scenes/${sceneId}/activate`);
@@ -244,6 +257,7 @@ export function DeviceProvider({ children }) {
       loading,
       updateDevice,
       toggleDevice,
+      toggleFavorite,
       activateScene,
       addDevice,
       deleteDevice,
