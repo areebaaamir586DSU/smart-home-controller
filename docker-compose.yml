@@ -1,0 +1,35 @@
+version: '3.8'
+
+services:
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile.backend
+    container_name: smart-home-backend
+    restart: always
+    ports:
+      - "5000:5000"
+    environment:
+      - FLASK_APP=app.py
+      - FLASK_ENV=production
+      - SECRET_KEY=your-production-secret-key-change-this
+      - JWT_SECRET_KEY=your-production-jwt-secret-key-change-this
+    networks:
+      - smart-home-network
+
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile.frontend
+    container_name: smart-home-frontend
+    restart: always
+    ports:
+      - "9031:9031"
+    depends_on:
+      - backend
+    networks:
+      - smart-home-network
+
+networks:
+  smart-home-network:
+    driver: bridge
