@@ -1,127 +1,123 @@
 import React from 'react';
 import { useDevices } from '../contexts/DeviceContext';
 
+const DEVICE_META = {
+  light: { icon: '💡', color: '#ffd54f', accent: 'gold' },
+  thermostat: { icon: '🌡️', color: '#4fc3f7', accent: 'cyan' },
+  lock: { icon: '🔒', color: '#66bb6a', accent: 'green' },
+  camera: { icon: '📹', color: '#ef5350', accent: 'red' },
+  sensor: { icon: '📡', color: '#ab47bc', accent: 'purple' }
+};
+
 function DeviceCard({ device }) {
   const { toggleDevice, updateDevice } = useDevices();
+  const meta = DEVICE_META[device.type] || { icon: '🏠', color: '#4fc3f7', accent: 'cyan' };
+  const isActive = () => device.status !== 'off' && device.status !== 'inactive' && device.status !== 'idle';
+  const active = isActive();
 
   const handleToggle = async () => {
-    try {
-      await toggleDevice(device.id);
-    } catch (error) {
-      console.error('Failed to toggle device:', error);
-    }
+    try { await toggleDevice(device.id); } catch (e) { console.error(e); }
   };
 
-  const handleBrightnessChange = async (e) => {
-    try {
-      await updateDevice(device.id, { brightness: parseInt(e.target.value) });
-    } catch (error) {
-      console.error('Failed to update brightness:', error);
-    }
+  const handleBrightness = async (e) => {
+    try { await updateDevice(device.id, { brightness: parseInt(e.target.value) }); } catch (e) {}
   };
 
-  const handleTemperatureChange = async (e) => {
-    try {
-      await updateDevice(device.id, { temperature: parseInt(e.target.value) });
-    } catch (error) {
-      console.error('Failed to update temperature:', error);
-    }
-  };
-
-  const isActive = () => {
-    return device.status !== 'off' && device.status !== 'inactive' && device.status !== 'idle';
+  const handleTemperature = async (e) => {
+    try { await updateDevice(device.id, { temperature: parseInt(e.target.value) }); } catch (e) {}
   };
 
   const getStatusText = () => {
     switch (device.type) {
-      case 'light':
-        return device.status === 'on' ? 'On' : 'Off';
-      case 'thermostat':
-        return device.status === 'on' ? `${device.temperature}°F` : 'Off';
-      case 'lock':
-        return device.status === 'locked' ? 'Locked' : 'Unlocked';
-      case 'camera':
-        return device.status === 'recording' ? 'Recording' : 'Idle';
-      case 'sensor':
-        return device.status === 'active' ? 'Active' : 'Inactive';
-      default:
-        return device.status;
+      case 'light': return device.status === 'on' ? 'On' : 'Off';
+      case 'thermostat': return device.status === 'on' ? `${device.temperature}°F` : 'Off';
+      case 'lock': return device.status === 'locked' ? 'Locked' : 'Unlocked';
+      case 'camera': return device.status === 'recording' ? 'Recording' : 'Idle';
+      case 'sensor': return device.status === 'active' ? 'Active' : 'Inactive';
+      default: return device.status;
     }
   };
 
   return (
-    <div className={`device-card ${isActive() ? 'active' : ''}`}>
+    <div className={`device-card neon ${active ? 'active' : ''} accent-${meta.accent}`}>
+      <div className="device-glow"></div>
       <div className="device-header">
-        <div className="device-name">{device.name}</div>
-        <div className={`device-status ${isActive() ? 'on' : 'off'}`}>
-          {getStatusText()}
+        <div className="device-icon" style={{ background: `${meta.color}22`, borderColor: meta.color }}>
+          <span>{meta.icon}</span>
         </div>
-      </div>
-
-      <div className="device-info">
-        <p>Room: {device.room}</p>
-        <p>Type: {device.type}</p>
+        <div className="device-title">
+          <div className="device-name">{device.name}</div>
+          <div className="device-room">{device.room}</div>
+        </div>
+        <div className="device-status-wrap">
+          <div className={`device-status ${active ? 'on' : 'off'}`} style={active ? { color: meta.color } : {}}>
+            {active && <span className="pulse-dot"></span>}
+            {getStatusText()}
+          </div>
+        </div>
       </div>
 
       {device.type === 'light' && (
         <div className="slider-control">
-          <label>Brightness: {device.brightness}%</label>
+          <label className="slider-label">Brightness</label>
           <input
             type="range"
-            min="0"
-            max="100"
+            className="neon-slider"
+            min="0" max="100"
             value={device.brightness}
-            onChange={handleBrightnessChange}
+            onChange={handleBrightness}
+            style={{ '--val': `${device.brightness}%`, '--c': meta.color }}
           />
+          <span className="slider-value">{device.brightness}%</span>
         </div>
       )}
 
       {device.type === 'thermostat' && (
-        <div className="slider-control">
-          <label>Temperature: {device.temperature}°F</label>
-          <input
-            type="range"
-            min="60"
-            max="85"
-            value={device.temperature}
-            onChange={handleTemperatureChange}
-          />
-        </div>
-      )}
-
-      {device.type === 'thermostat' && (
-        <div className="device-info">
-          <p>Humidity: {device.humidity}%</p>
-          <p>Mode: {device.mode}</p>
-        </div>
+        <>
+          <div className="slider-control">
+            <label className="slider-label">Temperature</label>
+            <input
+              type="range"
+              className="neon-slider"
+              min="60" max="85"
+              value={device.temperature}
+              onChange={handleTemperature}
+              style={{ '--val': `${((device.temperature - 60) / 25) * 100}%`, '--c': meta.color }}
+            />
+            <span className="slider-value">{device.temperature}°F</span>
+          </div>
+          <div className="device-meta">
+            <span className="meta-chip">💦 {device.humidity}%</span>
+            <span className="meta-chip">Mode: {device.mode}</span>
+          </div>
+        </>
       )}
 
       {device.type === 'lock' && (
-        <div className="device-info">
-          <p>Battery: {device.battery}%</p>
+        <div className="device-meta">
+          <span className="meta-chip">🔋 Battery {device.battery}%</span>
         </div>
       )}
 
       {device.type === 'camera' && (
-        <div className="device-info">
-          <p>Motion Detection: {device.motion_detection ? 'On' : 'Off'}</p>
-          <p>Night Vision: {device.night_vision ? 'On' : 'Off'}</p>
+        <div className="device-meta">
+          <span className="meta-chip">🎥 Motion: {device.motion_detection ? 'On' : 'Off'}</span>
+          <span className="meta-chip">🌙 Night: {device.night_vision ? 'On' : 'Off'}</span>
         </div>
       )}
 
       {device.type === 'sensor' && (
-        <div className="device-info">
-          <p>Sensitivity: {device.sensitivity}</p>
+        <div className="device-meta">
+          <span className="meta-chip">Sensitivity: {device.sensitivity}</span>
         </div>
       )}
 
       <div className="device-controls">
-        <button 
-          className="control-btn toggle"
-          onClick={handleToggle}
-        >
-          {isActive() ? 'Turn Off' : 'Turn On'}
-        </button>
+        <label className="switch big" style={{ '--c': meta.color }}>
+          <input type="checkbox" checked={active} onChange={handleToggle} />
+          <span className="slider round"></span>
+        </label>
+        <div className="control-label">{active ? 'TURN OFF' : 'TURN ON'}</div>
       </div>
     </div>
   );

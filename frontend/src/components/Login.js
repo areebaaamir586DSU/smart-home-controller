@@ -68,10 +68,10 @@ function Login() {
           {loading ? 'Signing in...' : 'Sign In'}
         </button>
         
-        <p style={{ marginTop: '20px', textAlign: 'center', color: '#b0bec5' }}>
-          Demo credentials: admin / admin123
-        </p>
-        <p style={{ marginTop: '10px', textAlign: 'center', color: '#b0bec5' }}>
+        <div className="demo-hint">
+          Demo: <strong>admin</strong> / <strong>admin123</strong>
+        </div>
+        <p style={{ marginTop: '12px', textAlign: 'center', color: '#667085', fontSize: '0.85rem' }}>
           New here? <Link to="/register" style={{ color: '#4fc3f7' }}>Create an account</Link>
         </p>
       </form>
