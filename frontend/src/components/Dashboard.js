@@ -35,8 +35,8 @@ function Dashboard() {
             <div className="value">{Object.keys(stats.rooms).length}</div>
           </div>
           <div className="stat-card">
-            <h3>Active Scenes</h3>
-            <div className="value">3</div>
+            <h3>Energy Today</h3>
+            <div className="value">{stats.today_energy} <small style={{fontSize:'0.5em'}}>kWh</small></div>
           </div>
         </div>
       )}

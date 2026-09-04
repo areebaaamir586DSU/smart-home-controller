@@ -38,10 +38,19 @@ export function AuthProvider({ children }) {
     delete api.defaults.headers.common['Authorization'];
   };
 
+  const register = async (username, password, email) => {
+    try {
+      const response = await api.post('/auth/register', { username, password, email });
+      return true;
+    } catch (error) {
+      return null;
+    }
+  };
+
   const isAuthenticated = !!token && !!user;
 
   return (
-    <AuthContext.Provider value={{ user, token, login, logout, isAuthenticated, loading }}>
+    <AuthContext.Provider value={{ user, token, login, logout, register, isAuthenticated, loading }}>
       {children}
     </AuthContext.Provider>
   );

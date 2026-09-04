@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 
 function Login() {
@@ -70,6 +70,9 @@ function Login() {
         
         <p style={{ marginTop: '20px', textAlign: 'center', color: '#b0bec5' }}>
           Demo credentials: admin / admin123
+        </p>
+        <p style={{ marginTop: '10px', textAlign: 'center', color: '#b0bec5' }}>
+          New here? <Link to="/register" style={{ color: '#4fc3f7' }}>Create an account</Link>
         </p>
       </form>
     </div>

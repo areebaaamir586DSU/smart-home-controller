@@ -1,12 +1,16 @@
 import React, { useState, useEffect } from 'react';
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { HashRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { DeviceProvider } from './contexts/DeviceContext';
 import Login from './components/Login';
+import Register from './components/Register';
 import Dashboard from './components/Dashboard';
 import DeviceControl from './components/DeviceControl';
 import RoomView from './components/RoomView';
 import SceneManager from './components/SceneManager';
+import Analytics from './components/Analytics';
+import Automations from './components/Automations';
+import Notifications from './components/Notifications';
 import Navbar from './components/Navbar';
 import './App.css';
 
@@ -24,6 +28,7 @@ function AppContent() {
       <main className={isAuthenticated ? 'main-content' : ''}>
         <Routes>
           <Route path="/login" element={<Login />} />
+          <Route path="/register" element={<Register />} />
           <Route path="/" element={
             <PrivateRoute>
               <Dashboard />
@@ -44,6 +49,22 @@ function AppContent() {
               <SceneManager />
             </PrivateRoute>
           } />
+          <Route path="/analytics" element={
+            <PrivateRoute>
+              <Analytics />
+            </PrivateRoute>
+          } />
+          <Route path="/automations" element={
+            <PrivateRoute>
+              <Automations />
+            </PrivateRoute>
+          } />
+          <Route path="/notifications" element={
+            <PrivateRoute>
+              <Notifications />
+            </PrivateRoute>
+          } />
+          <Route path="*" element={<Navigate to="/" />} />
         </Routes>
       </main>
     </div>

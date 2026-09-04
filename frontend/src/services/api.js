@@ -1,11 +1,15 @@
 import axios from 'axios';
+import { mockAdapter } from './mockApi';
 
 const api = axios.create({
-  baseURL: 'http://localhost:5000/api',
+  baseURL: '/api',
   headers: {
     'Content-Type': 'application/json'
   }
 });
+
+// Use mock adapter so the frontend works standalone without a backend
+mockAdapter(api);
 
 api.interceptors.request.use(
   (config) => {

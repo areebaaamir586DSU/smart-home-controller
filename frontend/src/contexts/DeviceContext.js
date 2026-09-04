@@ -1,5 +1,4 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { io } from 'socket.io-client';
 import api from '../services/api';
 import { useAuth } from './AuthContext';
 
@@ -10,37 +9,11 @@ export function DeviceProvider({ children }) {
   const [rooms, setRooms] = useState([]);
   const [scenes, setScenes] = useState([]);
   const [stats, setStats] = useState(null);
+  const [energy, setEnergy] = useState([]);
+  const [automations, setAutomations] = useState([]);
+  const [notifications, setNotifications] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [socket, setSocket] = useState(null);
   const { isAuthenticated } = useAuth();
-
-  useEffect(() => {
-    if (isAuthenticated) {
-      const newSocket = io('http://localhost:5000', {
-        transports: ['websocket', 'polling']
-      });
-
-      newSocket.on('connect', () => {
-        console.log('Connected to server');
-      });
-
-      newSocket.on('device_update', (updatedDevice) => {
-        setDevices(prev => prev.map(device => 
-          device.id === updatedDevice.id ? updatedDevice : device
-        ));
-      });
-
-      newSocket.on('disconnect', () => {
-        console.log('Disconnected from server');
-      });
-
-      setSocket(newSocket);
-
-      return () => {
-        newSocket.close();
-      };
-    }
-  }, [isAuthenticated]);
 
   const fetchDevices = async () => {
     try {
@@ -78,10 +51,37 @@ export function DeviceProvider({ children }) {
     }
   };
 
+  const fetchEnergy = async () => {
+    try {
+      const response = await api.get('/energy');
+      setEnergy(response.data);
+    } catch (error) {
+      console.error('Failed to fetch energy:', error);
+    }
+  };
+
+  const fetchAutomations = async () => {
+    try {
+      const response = await api.get('/automations');
+      setAutomations(response.data);
+    } catch (error) {
+      console.error('Failed to fetch automations:', error);
+    }
+  };
+
+  const fetchNotifications = async () => {
+    try {
+      const response = await api.get('/notifications');
+      setNotifications(response.data);
+    } catch (error) {
+      console.error('Failed to fetch notifications:', error);
+    }
+  };
+
   const updateDevice = async (deviceId, updates) => {
     try {
       const response = await api.put(`/devices/${deviceId}`, updates);
-      setDevices(prev => prev.map(device => 
+      setDevices(prev => prev.map(device =>
         device.id === deviceId ? response.data : device
       ));
       return response.data;
@@ -94,9 +94,10 @@ export function DeviceProvider({ children }) {
   const toggleDevice = async (deviceId) => {
     try {
       const response = await api.post(`/devices/${deviceId}/toggle`);
-      setDevices(prev => prev.map(device => 
+      setDevices(prev => prev.map(device =>
         device.id === deviceId ? response.data : device
       ));
+      fetchNotifications();
       return response.data;
     } catch (error) {
       console.error('Failed to toggle device:', error);
@@ -107,11 +108,52 @@ export function DeviceProvider({ children }) {
   const activateScene = async (sceneId) => {
     try {
       await api.post(`/scenes/${sceneId}/activate`);
-      await fetchDevices();
+      await Promise.all([fetchDevices(), fetchNotifications()]);
       return true;
     } catch (error) {
       console.error('Failed to activate scene:', error);
       throw error;
+    }
+  };
+
+  const addAutomation = async (data) => {
+    try {
+      const response = await api.post('/automations', data);
+      setAutomations(prev => [...prev, response.data]);
+      return response.data;
+    } catch (error) {
+      console.error('Failed to add automation:', error);
+      throw error;
+    }
+  };
+
+  const updateAutomation = async (automationId, data) => {
+    try {
+      const response = await api.put(`/automations/${automationId}`, data);
+      setAutomations(prev => prev.map(a => a.id === automationId ? response.data : a));
+      return response.data;
+    } catch (error) {
+      console.error('Failed to update automation:', error);
+      throw error;
+    }
+  };
+
+  const deleteAutomation = async (automationId) => {
+    try {
+      await api.delete(`/automations/${automationId}`);
+      setAutomations(prev => prev.filter(a => a.id !== automationId));
+    } catch (error) {
+      console.error('Failed to delete automation:', error);
+      throw error;
+    }
+  };
+
+  const clearNotifications = async () => {
+    try {
+      await api.delete('/notifications');
+      setNotifications([]);
+    } catch (error) {
+      console.error('Failed to clear notifications:', error);
     }
   };
 
@@ -131,7 +173,10 @@ export function DeviceProvider({ children }) {
           fetchDevices(),
           fetchRooms(),
           fetchScenes(),
-          fetchStats()
+          fetchStats(),
+          fetchEnergy(),
+          fetchAutomations(),
+          fetchNotifications()
         ]);
         setLoading(false);
       };
@@ -145,17 +190,26 @@ export function DeviceProvider({ children }) {
       rooms,
       scenes,
       stats,
+      energy,
+      automations,
+      notifications,
       loading,
-      socket,
       updateDevice,
       toggleDevice,
       activateScene,
+      addAutomation,
+      updateAutomation,
+      deleteAutomation,
+      clearNotifications,
       getDevicesByRoom,
       getDevicesByType,
       fetchDevices,
       fetchRooms,
       fetchScenes,
-      fetchStats
+      fetchStats,
+      fetchEnergy,
+      fetchAutomations,
+      fetchNotifications
     }}>
       {children}
     </DeviceContext.Provider>

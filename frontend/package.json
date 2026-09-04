@@ -2,8 +2,11 @@
   "name": "smart-home-dashboard",
   "version": "1.0.0",
   "description": "Smart Home Controller Dashboard",
+  "homepage": "https://areebaaamir586DSU.github.io/smart-home-controller",
   "main": "index.js",
   "scripts": {
+    "predeploy": "npm run build",
+    "deploy": "gh-pages -d build",
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
@@ -19,6 +22,7 @@
     "socket.io-client": "^4.7.2"
   },
   "devDependencies": {
+    "gh-pages": "^6.0.0",
     "react-scripts": "5.0.1"
   },
   "browserslist": {
