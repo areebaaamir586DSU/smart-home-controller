@@ -165,6 +165,54 @@ export function DeviceProvider({ children }) {
     return devices.filter(device => device.type === type);
   };
 
+  const addDevice = async (data) => {
+    try {
+      const response = await api.post('/devices', data);
+      setDevices(prev => [...prev, response.data]);
+      const room = response.data.room;
+      if (!rooms.includes(room)) setRooms(prev => [...prev, room]);
+      fetchStats();
+      fetchNotifications();
+      return response.data;
+    } catch (error) {
+      console.error('Failed to add device:', error);
+      throw error;
+    }
+  };
+
+  const deleteDevice = async (deviceId) => {
+    try {
+      await api.delete(`/devices/${deviceId}`);
+      setDevices(prev => prev.filter(d => d.id !== deviceId));
+      fetchStats();
+      fetchNotifications();
+    } catch (error) {
+      console.error('Failed to delete device:', error);
+      throw error;
+    }
+  };
+
+  const addScene = async (data) => {
+    try {
+      const response = await api.post('/scenes', data);
+      setScenes(prev => [...prev, response.data]);
+      return response.data;
+    } catch (error) {
+      console.error('Failed to add scene:', error);
+      throw error;
+    }
+  };
+
+  const deleteScene = async (sceneId) => {
+    try {
+      await api.delete(`/scenes/${sceneId}`);
+      setScenes(prev => prev.filter(s => s.id !== sceneId));
+    } catch (error) {
+      console.error('Failed to delete scene:', error);
+      throw error;
+    }
+  };
+
   useEffect(() => {
     if (isAuthenticated) {
       const loadData = async () => {
@@ -197,6 +245,10 @@ export function DeviceProvider({ children }) {
       updateDevice,
       toggleDevice,
       activateScene,
+      addDevice,
+      deleteDevice,
+      addScene,
+      deleteScene,
       addAutomation,
       updateAutomation,
       deleteAutomation,

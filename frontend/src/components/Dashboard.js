@@ -1,9 +1,11 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useDevices } from '../contexts/DeviceContext';
 import DeviceCard from './DeviceCard';
+import AddDeviceModal from './AddDeviceModal';
 
 function Dashboard() {
   const { devices, stats, loading } = useDevices();
+  const [showAdd, setShowAdd] = useState(false);
 
   if (loading) {
     return (
@@ -49,7 +51,13 @@ function Dashboard() {
         {devices.map(device => (
           <DeviceCard key={device.id} device={device} />
         ))}
+        <button className="btn-add-device" onClick={() => setShowAdd(true)}>
+          <div className="add-icon">+</div>
+          <span>Add New Device</span>
+        </button>
       </div>
+
+      {showAdd && <AddDeviceModal onClose={() => setShowAdd(false)} />}
     </div>
   );
 }

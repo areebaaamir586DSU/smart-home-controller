@@ -10,13 +10,19 @@ const DEVICE_META = {
 };
 
 function DeviceCard({ device }) {
-  const { toggleDevice, updateDevice } = useDevices();
+  const { toggleDevice, updateDevice, deleteDevice } = useDevices();
   const meta = DEVICE_META[device.type] || { icon: '🏠', color: '#4fc3f7', accent: 'cyan' };
   const isActive = () => device.status !== 'off' && device.status !== 'inactive' && device.status !== 'idle';
   const active = isActive();
 
   const handleToggle = async () => {
     try { await toggleDevice(device.id); } catch (e) { console.error(e); }
+  };
+
+  const handleDelete = async () => {
+    if (confirm(`Delete "${device.name}"?`)) {
+      try { await deleteDevice(device.id); } catch (e) { console.error(e); }
+    }
   };
 
   const handleBrightness = async (e) => {
@@ -118,6 +124,7 @@ function DeviceCard({ device }) {
           <span className="slider round"></span>
         </label>
         <div className="control-label">{active ? 'TURN OFF' : 'TURN ON'}</div>
+        <button className="btn btn-danger mini" onClick={handleDelete} title="Delete device">🗑️</button>
       </div>
     </div>
   );

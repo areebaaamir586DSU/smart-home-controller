@@ -138,6 +138,31 @@ export function mockAdapter(axiosInstance) {
         return ok(list);
       }
 
+      if (url.startsWith('/devices') && method === 'post') {
+        const b = body();
+        const sn = (b.name || 'Device').toLowerCase().replace(/\s+/g, '_');
+        const id = `${b.type || 'device'}_${Date.now()}`;
+        state.devices[id] = {
+          id,
+          name: b.name || 'New Device',
+          type: b.type || 'light',
+          room: b.room || 'Living Room',
+          status: 'off',
+          brightness: b.brightness || 100,
+          temperature: b.temperature || 72,
+          humidity: 45,
+          mode: 'auto',
+          battery: 100,
+          motion_detection: true,
+          night_vision: false,
+          sensitivity: 'medium',
+          ...(b.extra || {})
+        };
+        saveState(state);
+        notif(`${state.devices[id].name} added`, 'success');
+        return ok(state.devices[id]);
+      }
+
       const deviceMatch = url.match(/\/devices\/([^/?]+)/);
       if (deviceMatch) {
         const id = deviceMatch[1];
@@ -152,6 +177,14 @@ export function mockAdapter(axiosInstance) {
           saveState(state);
           notif(`${dev.name} updated`, 'info');
           return ok(dev);
+        }
+
+        if (method === 'delete') {
+          const name = dev.name;
+          delete state.devices[id];
+          saveState(state);
+          notif(`${name} deleted`, 'warning');
+          return ok({ message: 'Device deleted' });
         }
       }
 
@@ -180,6 +213,33 @@ export function mockAdapter(axiosInstance) {
       // ================= SCENES =================
       if (url.startsWith('/scenes') && !url.includes('activate') && method === 'get') {
         return ok(Object.values(state.scenes));
+      }
+
+      if (url.startsWith('/scenes') && !url.includes('activate') && method === 'post') {
+        const b = body();
+        const id = 'scene_' + Date.now();
+        state.scenes[id] = { id, name: b.name || 'New Scene', description: b.description || '', actions: b.actions || [] };
+        saveState(state);
+        notif(`Scene "${state.scenes[id].name}" created`, 'success');
+        return ok(state.scenes[id]);
+      }
+
+      const sceneMatch = url.match(/\/scenes\/([^/?]+)/);
+      if (sceneMatch && !url.includes('activate')) {
+        const id = sceneMatch[1];
+        const scene = state.scenes[id];
+        if (!scene) return fail('Scene not found', 404);
+        if (method === 'delete') {
+          delete state.scenes[id];
+          saveState(state);
+          notif(`Scene "${scene.name}" deleted`, 'warning');
+          return ok({ message: 'Scene deleted' });
+        }
+        if (method === 'put') {
+          Object.assign(scene, body());
+          saveState(state);
+          return ok(scene);
+        }
       }
 
       if (url.includes('/scenes/') && url.includes('/activate') && method === 'post') {
